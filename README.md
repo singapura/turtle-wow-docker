@@ -27,8 +27,11 @@ Verify a client's build in the bottom corner of its login screen, or via
 
 Common to all three: Windows host, realm reachable over the **LAN**, no
 optional services enabled, everything else left at the documented defaults.
-Each file carries a `REPLACE_WITH_YOUR_LAN_IP` placeholder that must be filled
-in with the host's IPv4 address before first start.
+The realm address is set to `192.168.178.28`, the host's IPv4 on its FRITZ!Box
+network. Give that machine a DHCP reservation in the router, or the address
+will eventually change and every client will fail at the realm screen. Note
+that the host also runs a NordVPN tunnel (`NordLynx`, `10.5.0.2`) — that is not
+the LAN address and must not be used here.
 
 ### `tortoise-deploy/compose.yaml`
 
