@@ -48,8 +48,8 @@ Ports: realmd `3724`, mangosd `8085`.
 
 ### `tortoise-docker/env.template`
 
-Copy to `.env` in a clone of that repository. Playerbots enabled with 40 random
-bots. **The two database passwords are placeholders** — replace both with
+Copy to `.env` in a clone of that repository. Playerbots enabled with 10 random
+bots, the count the upstream README recommends for a first start. **The two database passwords are placeholders** — replace both with
 strong values before first start, and keep them out of version control (the
 upstream `.gitignore` already excludes `.env`). Use alphanumeric characters
 only: the repository's `.cmd` helper scripts interpolate the password unquoted

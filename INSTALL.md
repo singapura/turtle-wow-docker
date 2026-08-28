@@ -17,7 +17,7 @@ Everything else takes about 30 minutes.
 - **Disk space.** Budget for the client itself plus roughly 10 GB or more of
   extracted map data, and the Docker images and database on top. Check the
   drive before starting rather than discovering it three hours in.
-- **Memory.** 40 playerbots want real RAM. If the host is tight, cap WSL2 in
+- **Memory.** Playerbots want real RAM. If the host is tight, cap WSL2 in
   `%UserProfile%\.wslconfig` rather than letting it swap.
 - **Turtle WoW client.** Must be build `7272`. Verify in the bottom corner of
   the client's login screen, or via `WoW.exe` → Properties → Details.
@@ -47,14 +47,14 @@ cd tortoise-docker
 ## 3. Put the prepared `.env` in place
 
 Copy the prepared `.env` into this folder (`C:\Users\<you>\tortoise-docker\.env`).
-It already carries the LAN address, 40 bots and strong database passwords.
+It already carries the LAN address, 10 bots and strong database passwords.
 Confirm it reads back correctly:
 
 ```powershell
 Select-String -Path .env -Pattern 'REALM_ADDRESS|AI_M(IN|AX)_RANDOM_BOTS'
 ```
 
-Expected: `REALM_ADDRESS=192.168.178.28`, and both bot counts at `40`.
+Expected: `REALM_ADDRESS=192.168.178.28`, and both bot counts at `10`.
 
 Never commit this file. The repository's `.gitignore` already excludes it.
 
@@ -130,7 +130,7 @@ docker compose logs -f mangosd
 ```
 
 The first start imports the world database and then builds playerbot caches and
-travel data before the world opens — allow up to 20 minutes, more at 40 bots.
+travel data before the world opens — allow up to 20 minutes.
 Wait for:
 
 ```text
@@ -148,10 +148,11 @@ docker compose logs --tail=20 mangosd
 
 Repeated `INSERT` lines mean the import is still running. Wait.
 
-> Optional: to shorten the first boot, set both bot counts to `10` in `.env`
-> before this step, then raise them back to `40` afterwards and run
-> `docker compose up -d mangosd`. The server rebuilds bot data on that restart,
-> but the world is already imported by then.
+> Bot count starts at `10`, which is what the upstream README recommends for a
+> first start. To raise it later, edit both `AI_MIN_RANDOM_BOTS` and
+> `AI_MAX_RANDOM_BOTS` in `.env` and run `docker compose up -d mangosd`. The
+> server rebuilds bot data on that restart, but the world is already imported by
+> then, so it is far quicker than the first boot.
 
 ## 8. Create your account
 
