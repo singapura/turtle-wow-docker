@@ -9,6 +9,11 @@ Everything else takes about 30 minutes.
 
 ## 0. Before you start
 
+- **Use PowerShell, not Command Prompt.** Every command here is PowerShell:
+  `$HOME`, `Get-Content`, backtick line continuation and `${PWD}` all fail in
+  `cmd.exe`. Open it with <kbd>Win</kbd>+<kbd>X</kbd> → Terminal, and check that
+  the prompt begins with `PS`.
+
 - **Disk space.** Budget for the client itself plus roughly 10 GB or more of
   extracted map data, and the Docker images and database on top. Check the
   drive before starting rather than discovering it three hours in.
