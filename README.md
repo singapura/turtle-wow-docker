@@ -88,6 +88,8 @@ Bot counts in `.env` always override `config/aiplayerbot.conf`, because
 
 ## Setup outline (Windows)
 
+Full step-by-step version with exact commands: [INSTALL.md](INSTALL.md).
+
 1. Install Docker Desktop (WSL2 backend) and confirm `docker version` and
    `docker compose version` both respond.
 2. Clone the chosen repository and copy its example files into place.
