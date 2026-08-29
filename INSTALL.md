@@ -129,13 +129,27 @@ docker compose up -d
 docker compose logs -f mangosd
 ```
 
-The first start imports the world database and then builds playerbot caches and
-travel data before the world opens — allow up to 20 minutes.
-Wait for:
+The first start imports the world database, then playerbots generates its pool
+of bot characters — thousands of them, independent of `AI_MAX_RANDOM_BOTS`,
+which caps only how many are online at once. **In practice this took over two
+hours**, not the 20 minutes the upstream README suggests. Wait for:
 
 ```text
 World server is up and running
 ```
+
+That line drowns in playerbots' SQL output and is easy to miss. Rather than
+watching for it, test whether the server is actually listening:
+
+```powershell
+docker compose logs mangosd | Select-String -Pattern "up and running|World initialized"
+Test-NetConnection 127.0.0.1 -Port 3724 -InformationLevel Quiet
+Test-NetConnection 127.0.0.1 -Port 8090 -InformationLevel Quiet
+```
+
+Two `True` results mean the realm is live, however noisy the log still is.
+Continuous `ai_playerbot_random_bots` queries afterwards are normal running
+state, not startup.
 
 **Do not interrupt this.** The initial database import is not resumable; a
 half-finished database has to be deleted and rebuilt.
@@ -146,7 +160,11 @@ If it looks stuck, check whether it is still working rather than assuming:
 docker compose logs --tail=20 mangosd
 ```
 
-Repeated `INSERT` lines mean the import is still running. Wait.
+Repeated `INSERT` lines mean the import is still running. Wait. To tell real
+progress from a hang, check `docker stats --no-stream`: an `mangosd` burning
+50 %+ CPU and several GB of RAM is working, not wedged. `docker compose ps`
+also distinguishes the phases — while `db-init` is still running, `mangosd`
+has not started at all and its log is silent.
 
 > Bot count starts at `10`, which is what the upstream README recommends for a
 > first start. To raise it later, edit both `AI_MIN_RANDOM_BOTS` and
