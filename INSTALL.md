@@ -184,14 +184,40 @@ result means mangosd was not ready yet — wait for the ready line and retry.
 
 ## 9. Point the client at the server
 
-In your Turtle WoW client folder, edit `realmlist.wtf` to exactly:
+**Two files control this, and the second overrides the first.** A downloaded
+client often ships pointed at whichever server distributed it, which produces
+login errors that look server-side but are not:
 
-```text
-set realmlist 192.168.178.28
+```powershell
+$c = "C:\TurtleWoW\TurtleWoW eng client 1.18.1"
+Set-Content "$c\realmlist.wtf" -Value 'SET realmList "192.168.178.28"', 'SET patchList "192.168.178.28"'
+(Get-Content "$c\WTF\Config.wtf") -replace '^SET realmList ".*"$', 'SET realmList "192.168.178.28"' | Set-Content "$c\WTF\Config.wtf"
 ```
 
-Do the same on any other PC on the network that should connect. Log in with the
-account you just created.
+Launch `WoW.exe` directly. A bundled launcher rewrites both files on every
+start, silently undoing the change. Log in with the account you just created.
+
+**Diagnosing a failed login.** The account table tells you whether the client
+even reached your server:
+
+```powershell
+docker compose exec -T db mariadb -uroot -p"$pw" -e "SELECT username, failed_logins, last_ip FROM tw_logon.account;"
+```
+
+`failed_logins 0` with `last_ip 0.0.0.0` means no attempt ever arrived, so the
+password is irrelevant and the realmlist is the problem. A non-zero
+`failed_logins` means you reached the server and the password is genuinely
+wrong. Realmd's log confirms it either way: a real attempt logs a query against
+the account table, not just `SELECT 1` keepalives.
+
+Reset a password with:
+
+```powershell
+docker compose exec -u turtle mangosd sh -c "echo 'account set password NAME newpass newpass' > /opt/turtle/run/mangosd.in"
+```
+
+Keep passwords alphanumeric and at most 16 characters — the `.cmd` helper
+scripts mangle `%`, `!` and `&`, which creates an account you cannot log into.
 
 If a **different** PC cannot connect while the server machine can, suspect
 NordVPN first: its kill switch and LAN-invisibility options block local traffic.
