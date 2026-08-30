@@ -166,11 +166,25 @@ progress from a hang, check `docker stats --no-stream`: an `mangosd` burning
 also distinguishes the phases — while `db-init` is still running, `mangosd`
 has not started at all and its log is silent.
 
-> Bot count starts at `10`, which is what the upstream README recommends for a
-> first start. To raise it later, edit both `AI_MIN_RANDOM_BOTS` and
-> `AI_MAX_RANDOM_BOTS` in `.env` and run `docker compose up -d mangosd`. The
-> server rebuilds bot data on that restart, but the world is already imported by
-> then, so it is far quicker than the first boot.
+> Bot count starts at `10` to keep the first boot survivable. Raise it
+> afterwards by editing both `AI_MIN_RANDOM_BOTS` and `AI_MAX_RANDOM_BOTS` in
+> `.env`, then running `docker compose up -d mangosd`. **Use `up -d`, not
+> `restart`** — a restart reuses the existing container with its old
+> environment and silently ignores the change. Confirm it took with
+> `docker compose exec mangosd sh -c 'env | grep AI_M'`.
+>
+> Ten bots across 57 maps is effectively an empty world; the image is tuned for
+> 1000. Measured on a 16-core host: 200 bots ran at 78 % CPU (Docker units,
+> where 100 % is one core) and 1000 ran with no perceptible slowdown. Memory is
+> not the constraint — it sits near 6 GB regardless of bot count, because the
+> loaded map and vmap data dominates. Bots log in gradually, so allow
+> 10–30 minutes to reach the target, and count them with
+> `SELECT COUNT(*) FROM tw_char.characters WHERE online = 1;`.
+>
+> If bots are numerous but you still rarely meet one, narrow
+> `AiPlayerbot.RandomBotMinLevel` / `RandomBotMaxLevel` in
+> `config/aiplayerbot.conf` to bracket your own level, concentrating them in the
+> zones you play in.
 
 ## 8. Create your account
 
